@@ -1,18 +1,16 @@
 package com.example.propertyanimator
 
-import android.animation.AnimatorSet
-import android.animation.Keyframe
 import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
+import android.animation.TypeEvaluator
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    var view : View? = null
+    var view: View? = null
 
     @SuppressLint("ObjectAnimatorBinding")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,19 +102,46 @@ class MainActivity : AppCompatActivity() {
 //        objectAnimator.startDelay = 1000
 //        objectAnimator.start()
 
-        val length = Utils.dp2px(250f)
-        val keyFrame1 = Keyframe.ofFloat(0f, 0f)
-        val keyFrame2 = Keyframe.ofFloat(0.1f, 0.4f * length);
-        val keyFrame3 = Keyframe.ofFloat(0.9f, 0.6f * length)
-        val keyFrame4 = Keyframe.ofFloat(1f, length)
-        val vh = PropertyValuesHolder.ofKeyframe("translationX", keyFrame1,
-        keyFrame2, keyFrame3, keyFrame4)
-        val animator = ObjectAnimator.ofPropertyValuesHolder(view, vh)
+//        val length = Utils.dp2px(250f)
+//        val keyFrame1 = Keyframe.ofFloat(0f, 0f)
+//        val keyFrame2 = Keyframe.ofFloat(0.1f, 0.4f * length);
+//        val keyFrame3 = Keyframe.ofFloat(0.9f, 0.6f * length)
+//        val keyFrame4 = Keyframe.ofFloat(1f, length)
+//        val vh = PropertyValuesHolder.ofKeyframe("translationX", keyFrame1,
+//        keyFrame2, keyFrame3, keyFrame4)
+//        val animator = ObjectAnimator.ofPropertyValuesHolder(view, vh)
+//        animator.startDelay = 1000
+//        animator.duration = 2000
+//        // 设置动画的插值器为先加速后减速
+//        // AccelerateDecelerateInterpolator
+//        animator.interpolator = AccelerateDecelerateInterpolator()
+//        animator.start()
+
+        val point = PointF(Utils.dp2px(300f), Utils.dp2px(200f))
+        val animator = ObjectAnimator.ofObject(
+            view, "point", PointFEvaluator()
+            , point
+        )
         animator.startDelay = 1000
         animator.duration = 2000
-        // 设置动画的插值器为先加速后减速
-        // AccelerateDecelerateInterpolator
-        animator.interpolator = AccelerateDecelerateInterpolator()
         animator.start()
+    }
+
+    /**
+     * 声明一个动画运动规则
+     * 点
+     * 规则就是终点值减去起点值乘以进度百分比
+     * 计算出的点返回即可
+     */
+    internal class PointFEvaluator : TypeEvaluator<PointF> {
+        override fun evaluate(
+            fraction: Float,
+            startValue: PointF,
+            endValue: PointF
+        ): PointF {
+            val x = startValue.x + (endValue.x - startValue.x) * fraction
+            val y = startValue.y + (endValue.y - startValue.y) * fraction
+            return PointF(x, y)
+        }
     }
 }
